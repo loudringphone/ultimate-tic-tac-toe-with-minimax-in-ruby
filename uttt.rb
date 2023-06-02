@@ -1,4 +1,5 @@
 require 'set'
+require 'benchmark'
 
 $lo_boards = [
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -52,8 +53,8 @@ def all_x_or_o(board)
   board.all? { |cell| cell == 'X' || cell == 'O' }
 end
 
-def minimax(mo, los, player, depth, alpha, beta, maxDepth)
-  score = eval_board(mo[:gloIndex], los)
+def minimax(glo_mo, lo_mo, los, player, depth, alpha, beta, maxDepth)
+  score = eval_board(glo_mo, los)
   return { score: score } if depth == maxDepth
 
   glo_board_minimax = []
@@ -72,13 +73,13 @@ def minimax(mo, los, player, depth, alpha, beta, maxDepth)
   return { score: -100000 + depth } if winning(glo_board_minimax, $com_player)
   return { score: 100000 - depth } if winning(glo_board_minimax, $hum_player)
 
-  if glo_board_minimax[mo[:loIndex]].is_a?(Numeric) || glo_board_minimax[mo[:loIndex]] == 'NA'
+  if glo_board_minimax[lo_mo].is_a?(Numeric) || glo_board_minimax[lo_mo] == 'NA'
       (0..8).each do |j|
       glo_board_minimax[j] = 'NA' if glo_board_minimax[j].is_a?(Numeric)
       end
   end
 
-  glo_board_minimax[mo[:loIndex]] = mo[:loIndex] if glo_board_minimax[mo[:loIndex]] == 'NA'
+  glo_board_minimax[lo_mo] = lo_mo if glo_board_minimax[lo_mo] == 'NA'
   open_boards_minimax = empty_glo_indices(glo_board_minimax)
   return { score: score } if open_boards_minimax.length.zero?
 
@@ -89,14 +90,14 @@ def minimax(mo, los, player, depth, alpha, beta, maxDepth)
       best_move = nil
       (0..open_boards_minimax.length-1).each do |o|
         (0..empty_spots_in_lo_boards[o].length-1).each do |i|
-          los[open_boards_minimax[o]][empty_spots_in_lo_boards[o][i]] = 'X'
-          move = { gloIndex: open_boards_minimax[o], loIndex: empty_spots_in_lo_boards[o][i] }
-          result = minimax(move, los, $com_player, depth + 1, alpha, beta, maxDepth)
-          move[:score] = result[:score]
-          los[open_boards_minimax[o]][empty_spots_in_lo_boards[o][i]] = ' '
+          glo_move = open_boards_minimax[o]
+          lo_move = empty_spots_in_lo_boards[o][i]
+          los[glo_move][lo_move] = 'X'
+          move = minimax(glo_move, lo_move, los, $com_player, depth + 1, alpha, beta, maxDepth)
+          los[glo_move][lo_move] = ' '
           if move[:score] > max_val
           max_val = move[:score]
-          best_move = move
+          best_move = { gloIndex: glo_move, loIndex: lo_move, score: move[:score] }
           end
           alpha = [alpha, max_val].max
           break if beta <= alpha
@@ -110,14 +111,14 @@ def minimax(mo, los, player, depth, alpha, beta, maxDepth)
       
       (0..open_boards_minimax.length-1).each do |o|
         (0..empty_spots_in_lo_boards[o].length-1).each do |i|
-          los[open_boards_minimax[o]][empty_spots_in_lo_boards[o][i]] = 'O'
-          move = { gloIndex: open_boards_minimax[o], loIndex: empty_spots_in_lo_boards[o][i] }
-          result = minimax(move, los, $hum_player, depth + 1, alpha, beta, maxDepth)
-          move[:score] = result[:score]
-          los[open_boards_minimax[o]][empty_spots_in_lo_boards[o][i]] = ' '
+          glo_move = open_boards_minimax[o]
+          lo_move = empty_spots_in_lo_boards[o][i]
+          los[glo_move][lo_move] = 'O'
+          move = minimax(glo_move, lo_move, los, $hum_player, depth + 1, alpha, beta, maxDepth)
+          los[glo_move][lo_move] = ' '
           if move[:score] < min_val
-          min_val = move[:score]
-          best_move = move
+            min_val = move[:score]
+            best_move = { gloIndex: glo_move, loIndex: lo_move, score: move[:score] }
           end
           beta = [beta, min_val].min
           break if beta <= alpha
@@ -241,25 +242,23 @@ end
 def ai_player
     empty_spots_in_lo_boards = empty_lo_indices($open_boards, $lo_boards)
     minimum_score = Float::INFINITY
-    best_move = nil
-
+    board = nil
+    square = nil
     $open_boards.length.times do |o|
       empty_spots_in_lo_boards[o].length.times do |i|
-        $lo_boards[$open_boards[o]][empty_spots_in_lo_boards[o][i]] = 'O'
-        move = { gloIndex: $open_boards[o], loIndex: empty_spots_in_lo_boards[o][i] }
-        result = minimax(move, $lo_boards, $hum_player, 0, -Float::INFINITY, Float::INFINITY, 6)
-        move[:score] = result[:score]
-        $lo_boards[$open_boards[o]][empty_spots_in_lo_boards[o][i]] = ' '
-
+        glo_move = $open_boards[o]
+        lo_move = empty_spots_in_lo_boards[o][i]
+        $lo_boards[glo_move][lo_move] = 'O'
+        move = minimax(glo_move, lo_move, $lo_boards, $hum_player, 0, -Float::INFINITY, Float::INFINITY, 6)
+        $lo_boards[glo_move][lo_move] = ' '
         if move[:score] < minimum_score
           minimum_score = move[:score]
-          best_move = move
+          board = glo_move
+          square = lo_move
         end
       end
     end
 
-    board = best_move[:gloIndex]
-    square = best_move[:loIndex]
     $lo_boards[board][square] = 'O'
 
     (0..8).each do |i|
@@ -667,6 +666,7 @@ def play_game
     end
 
     ai_player
+
     if winning($glo_board, $com_player)
       display_board
       puts "Player #{$com_player} wins!"
