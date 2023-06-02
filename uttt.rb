@@ -1,3 +1,5 @@
+require 'set'
+
 $lo_boards = [
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -192,42 +194,44 @@ def eval_board(current, los)
       end
     end
 
-    scores = []
+    row_scores = Set.new
     all_winning_combos.each do |combo|
       lo_arr = [los[i][combo[0]], los[i][combo[1]], los[i][combo[2]]]
-      unless scores.include?(row_score(lo_arr))
+      row_score_val = row_score(lo_arr)
+      if !row_scores.include?(row_score_val)
         if (combo[0] == 0 && combo[1] == 4 && combo[2] == 8) || (combo[0] == 2 && combo[1] == 4 && combo[2] == 6)
-          if row_score(lo_arr) == 6 || row_score(lo_arr) == -6
+          if row_score_val == 6 || row_score_val == -6
             if i == current
-              score += row_score(lo_arr) * 1.2 * 1.5 * lo_board_weightings[i]
+              score += row_score_val * 1.2 * 1.5 * lo_board_weightings[i]
             else
-              score += row_score(lo_arr) * 1.2 * lo_board_weightings[i]
+              score += row_score_val * 1.2 * lo_board_weightings[i]
             end
           end
         else
           if i == current
-            score += row_score(lo_arr) * 1.5 * lo_board_weightings[i]
+            score += row_score_val * 1.5 * lo_board_weightings[i]
           else
-            score += row_score(lo_arr) * lo_board_weightings[i]
+            score += row_score_val * lo_board_weightings[i]
           end
         end
-        scores.push(row_score(lo_arr))
+        row_scores.add(row_score_val)
       end
     end
   end
 
-  scores = []
+  row_scores = Set.new
   all_winning_combos.each do |combo|
     glo_arr = [glo[combo[0]], glo[combo[1]], glo[combo[2]]]
-    unless scores.include?(row_score(glo_arr))
+    row_score_val = row_score(glo_arr)
+    if !row_scores.include?(row_score_val)
       if (combo[0] == 0 && combo[1] == 4 && combo[2] == 8) || (combo[0] == 2 && combo[1] == 4 && combo[2] == 6)
-        if row_score(glo_arr) == 6 || row_score(glo_arr) == -6
-          score += row_score(glo_arr) * 1.2 * 150
+        if row_score_val == 6 || row_score_val == -6
+          score += row_score_val * 1.2 * 150
         end
       else
-        score += row_score(glo_arr) * 150
+        score += row_score_val * 150
       end
-      scores.push(row_score(glo_arr))
+      row_scores.add(row_score_val)
     end
   end
 
