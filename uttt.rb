@@ -45,11 +45,11 @@ def minimax(glo_mo, lo_mo, los, player, depth, alpha, beta, max_depth)
     open_boards_minimax.each do |glo_move|
       empty_spots_in_lo_boards[open_boards_minimax.index(glo_move)].each do |lo_move|
         los[glo_move][lo_move] = 'X'
-        move = minimax(glo_move, lo_move, los, @com_player, depth + 1, alpha, beta, max_depth)
+        result = minimax(glo_move, lo_move, los, @com_player, depth + 1, alpha, beta, max_depth)
         los[glo_move][lo_move] = ' '
-        if move[:score] > max_val
-          max_val = move[:score]
-          best_move = { gloIndex: glo_move, loIndex: lo_move, score: move[:score] }
+        if result[:score] > max_val
+          max_val = result[:score]
+          best_move = { gloIndex: glo_move, loIndex: lo_move, score: result[:score] }
         end
         alpha = [alpha, max_val].max
         break if beta <= alpha
@@ -61,11 +61,11 @@ def minimax(glo_mo, lo_mo, los, player, depth, alpha, beta, max_depth)
     open_boards_minimax.each do |glo_move|
       empty_spots_in_lo_boards[open_boards_minimax.index(glo_move)].each do |lo_move|
         los[glo_move][lo_move] = 'O'
-        move = minimax(glo_move, lo_move, los, @hum_player, depth + 1, alpha, beta, max_depth)
+        result = minimax(glo_move, lo_move, los, @hum_player, depth + 1, alpha, beta, max_depth)
         los[glo_move][lo_move] = ' '
-        if move[:score] < min_val
-          min_val = move[:score]
-          best_move = { gloIndex: glo_move, loIndex: lo_move, score: move[:score] }
+        if result[:score] < min_val
+          min_val = result[:score]
+          best_move = { gloIndex: glo_move, loIndex: lo_move, score: result[:score] }
         end
         beta = [beta, min_val].min
         break if beta <= alpha
@@ -190,11 +190,11 @@ def ai_player
       glo_move = @open_boards[o]
       lo_move = empty_spots_in_lo_boards[o][i]
       @lo_boards[glo_move][lo_move] = 'O'
-      move = minimax(glo_move, lo_move, @lo_boards, @hum_player, 0, -Float::INFINITY, Float::INFINITY, 4)
+      result = minimax(glo_move, lo_move, @lo_boards, @hum_player, 0, -Float::INFINITY, Float::INFINITY, 4)
       @lo_boards[glo_move][lo_move] = ' '
-      next unless move[:score] < minimum_score
+      next unless result[:score] < minimum_score
 
-      minimum_score = move[:score]
+      minimum_score = result[:score]
       board = glo_move
       square = lo_move
     end
@@ -226,25 +226,241 @@ end
 
 def display_board
   puts style_board('-', 0) * 13 + style_board('-', 1) * 13 + style_board('-', 2) * 13
-  puts "#{style_board('|', 0)} #{style_board(@lo_boards[0][0], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][1], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][2], 0)} #{style_board('|', 0)}#{style_board('|', 1)} #{style_board(@lo_boards[1][0], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][1], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][2], 1)} #{style_board('|', 1)}#{style_board('|', 2)} #{style_board(@lo_boards[2][0], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][1], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][2], 2)} #{style_board('|', 2)}"
+  puts "#{style_board('|',
+                      0)} #{style_board(@lo_boards[0][0],
+                                        0)} #{style_board('|',
+                                                          0)} #{style_board(@lo_boards[0][1],
+                                                                            0)} #{style_board('|',
+                                                                                              0)} #{style_board(@lo_boards[0][2],
+                                                                                                                0)} #{style_board('|',
+                                                                                                                                  0)}#{style_board('|',
+                                                                                                                                                   1)} #{style_board(@lo_boards[1][0],
+                                                                                                                                                                     1)} #{style_board('|',
+                                                                                                                                                                                       1)} #{style_board(@lo_boards[1][1],
+                                                                                                                                                                                                         1)} #{style_board('|',
+                                                                                                                                                                                                                           1)} #{style_board(@lo_boards[1][2],
+                                                                                                                                                                                                                                             1)} #{style_board('|',
+                                                                                                                                                                                                                                                               1)}#{style_board('|',
+                                                                                                                                                                                                                                                                                2)} #{style_board(@lo_boards[2][0],
+                                                                                                                                                                                                                                                                                                  2)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    2)} #{style_board(@lo_boards[2][1],
+                                                                                                                                                                                                                                                                                                                                      2)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[2][2], 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 0) * 13 + style_board('-', 1) * 13 + style_board('-', 2) * 13
-  puts "#{style_board('|', 0)} #{style_board(@lo_boards[0][3], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][4], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][5], 0)} #{style_board('|', 0)}#{style_board('|', 1)} #{style_board(@lo_boards[1][3], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][4], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][5], 1)} #{style_board('|', 1)}#{style_board('|', 2)} #{style_board(@lo_boards[2][3], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][4], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][5], 2)} #{style_board('|', 2)}"
+  puts "#{style_board('|',
+                      0)} #{style_board(@lo_boards[0][3],
+                                        0)} #{style_board('|',
+                                                          0)} #{style_board(@lo_boards[0][4],
+                                                                            0)} #{style_board('|',
+                                                                                              0)} #{style_board(@lo_boards[0][5],
+                                                                                                                0)} #{style_board('|',
+                                                                                                                                  0)}#{style_board('|',
+                                                                                                                                                   1)} #{style_board(@lo_boards[1][3],
+                                                                                                                                                                     1)} #{style_board('|',
+                                                                                                                                                                                       1)} #{style_board(@lo_boards[1][4],
+                                                                                                                                                                                                         1)} #{style_board('|',
+                                                                                                                                                                                                                           1)} #{style_board(@lo_boards[1][5],
+                                                                                                                                                                                                                                             1)} #{style_board('|',
+                                                                                                                                                                                                                                                               1)}#{style_board('|',
+                                                                                                                                                                                                                                                                                2)} #{style_board(@lo_boards[2][3],
+                                                                                                                                                                                                                                                                                                  2)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    2)} #{style_board(@lo_boards[2][4],
+                                                                                                                                                                                                                                                                                                                                      2)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[2][5], 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 0) * 13 + style_board('-', 1) * 13 + style_board('-', 2) * 13
-  puts "#{style_board('|', 0)} #{style_board(@lo_boards[0][6], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][7], 0)} #{style_board('|', 0)} #{style_board(@lo_boards[0][8], 0)} #{style_board('|', 0)}#{style_board('|', 1)} #{style_board(@lo_boards[1][6], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][7], 1)} #{style_board('|', 1)} #{style_board(@lo_boards[1][8], 1)} #{style_board('|', 1)}#{style_board('|', 2)} #{style_board(@lo_boards[2][6], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][7], 2)} #{style_board('|', 2)} #{style_board(@lo_boards[2][8], 2)} #{style_board('|', 2)}"
+  puts "#{style_board('|',
+                      0)} #{style_board(@lo_boards[0][6],
+                                        0)} #{style_board('|',
+                                                          0)} #{style_board(@lo_boards[0][7],
+                                                                            0)} #{style_board('|',
+                                                                                              0)} #{style_board(@lo_boards[0][8],
+                                                                                                                0)} #{style_board('|',
+                                                                                                                                  0)}#{style_board('|',
+                                                                                                                                                   1)} #{style_board(@lo_boards[1][6],
+                                                                                                                                                                     1)} #{style_board('|',
+                                                                                                                                                                                       1)} #{style_board(@lo_boards[1][7],
+                                                                                                                                                                                                         1)} #{style_board('|',
+                                                                                                                                                                                                                           1)} #{style_board(@lo_boards[1][8],
+                                                                                                                                                                                                                                             1)} #{style_board('|',
+                                                                                                                                                                                                                                                               1)}#{style_board('|',
+                                                                                                                                                                                                                                                                                2)} #{style_board(@lo_boards[2][6],
+                                                                                                                                                                                                                                                                                                  2)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    2)} #{style_board(@lo_boards[2][7],
+                                                                                                                                                                                                                                                                                                                                      2)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[2][8], 2
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 2
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 0) * 13 + style_board('-', 1) * 13 + style_board('-', 2) * 13
   puts style_board('-', 3) * 13 + style_board('-', 4) * 13 + style_board('-', 5) * 13
-  puts "#{style_board('|', 3)} #{style_board(@lo_boards[3][0], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][1], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][2], 3)} #{style_board('|', 3)}#{style_board('|', 4)} #{style_board(@lo_boards[4][0], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][1], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][2], 4)} #{style_board('|', 4)}#{style_board('|', 5)} #{style_board(@lo_boards[5][0], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][1], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][2], 5)} #{style_board('|', 5)}"
+  puts "#{style_board('|',
+                      3)} #{style_board(@lo_boards[3][0],
+                                        3)} #{style_board('|',
+                                                          3)} #{style_board(@lo_boards[3][1],
+                                                                            3)} #{style_board('|',
+                                                                                              3)} #{style_board(@lo_boards[3][2],
+                                                                                                                3)} #{style_board('|',
+                                                                                                                                  3)}#{style_board('|',
+                                                                                                                                                   4)} #{style_board(@lo_boards[4][0],
+                                                                                                                                                                     4)} #{style_board('|',
+                                                                                                                                                                                       4)} #{style_board(@lo_boards[4][1],
+                                                                                                                                                                                                         4)} #{style_board('|',
+                                                                                                                                                                                                                           4)} #{style_board(@lo_boards[4][2],
+                                                                                                                                                                                                                                             4)} #{style_board('|',
+                                                                                                                                                                                                                                                               4)}#{style_board('|',
+                                                                                                                                                                                                                                                                                5)} #{style_board(@lo_boards[5][0],
+                                                                                                                                                                                                                                                                                                  5)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    5)} #{style_board(@lo_boards[5][1],
+                                                                                                                                                                                                                                                                                                                                      5)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[5][2], 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 3) * 13 + style_board('-', 4) * 13 + style_board('-', 5) * 13
-  puts "#{style_board('|', 3)} #{style_board(@lo_boards[3][3], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][4], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][5], 3)} #{style_board('|', 3)}#{style_board('|', 4)} #{style_board(@lo_boards[4][3], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][4], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][5], 4)} #{style_board('|', 4)}#{style_board('|', 5)} #{style_board(@lo_boards[5][3], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][4], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][5], 5)} #{style_board('|', 5)}"
+  puts "#{style_board('|',
+                      3)} #{style_board(@lo_boards[3][3],
+                                        3)} #{style_board('|',
+                                                          3)} #{style_board(@lo_boards[3][4],
+                                                                            3)} #{style_board('|',
+                                                                                              3)} #{style_board(@lo_boards[3][5],
+                                                                                                                3)} #{style_board('|',
+                                                                                                                                  3)}#{style_board('|',
+                                                                                                                                                   4)} #{style_board(@lo_boards[4][3],
+                                                                                                                                                                     4)} #{style_board('|',
+                                                                                                                                                                                       4)} #{style_board(@lo_boards[4][4],
+                                                                                                                                                                                                         4)} #{style_board('|',
+                                                                                                                                                                                                                           4)} #{style_board(@lo_boards[4][5],
+                                                                                                                                                                                                                                             4)} #{style_board('|',
+                                                                                                                                                                                                                                                               4)}#{style_board('|',
+                                                                                                                                                                                                                                                                                5)} #{style_board(@lo_boards[5][3],
+                                                                                                                                                                                                                                                                                                  5)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    5)} #{style_board(@lo_boards[5][4],
+                                                                                                                                                                                                                                                                                                                                      5)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[5][5], 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 3) * 13 + style_board('-', 4) * 13 + style_board('-', 5) * 13
-  puts "#{style_board('|', 3)} #{style_board(@lo_boards[3][6], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][7], 3)} #{style_board('|', 3)} #{style_board(@lo_boards[3][8], 3)} #{style_board('|', 3)}#{style_board('|', 4)} #{style_board(@lo_boards[4][6], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][7], 4)} #{style_board('|', 4)} #{style_board(@lo_boards[4][8], 4)} #{style_board('|', 4)}#{style_board('|', 5)} #{style_board(@lo_boards[5][6], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][7], 5)} #{style_board('|', 5)} #{style_board(@lo_boards[5][8], 5)} #{style_board('|', 5)}"
+  puts "#{style_board('|',
+                      3)} #{style_board(@lo_boards[3][6],
+                                        3)} #{style_board('|',
+                                                          3)} #{style_board(@lo_boards[3][7],
+                                                                            3)} #{style_board('|',
+                                                                                              3)} #{style_board(@lo_boards[3][8],
+                                                                                                                3)} #{style_board('|',
+                                                                                                                                  3)}#{style_board('|',
+                                                                                                                                                   4)} #{style_board(@lo_boards[4][6],
+                                                                                                                                                                     4)} #{style_board('|',
+                                                                                                                                                                                       4)} #{style_board(@lo_boards[4][7],
+                                                                                                                                                                                                         4)} #{style_board('|',
+                                                                                                                                                                                                                           4)} #{style_board(@lo_boards[4][8],
+                                                                                                                                                                                                                                             4)} #{style_board('|',
+                                                                                                                                                                                                                                                               4)}#{style_board('|',
+                                                                                                                                                                                                                                                                                5)} #{style_board(@lo_boards[5][6],
+                                                                                                                                                                                                                                                                                                  5)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    5)} #{style_board(@lo_boards[5][7],
+                                                                                                                                                                                                                                                                                                                                      5)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[5][8], 5
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 5
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 3) * 13 + style_board('-', 4) * 13 + style_board('-', 5) * 13
   puts style_board('-', 6) * 13 + style_board('-', 7) * 13 + style_board('-', 8) * 13
-  puts "#{style_board('|', 6)} #{style_board(@lo_boards[6][0], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][1], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][2], 6)} #{style_board('|', 6)}#{style_board('|', 7)} #{style_board(@lo_boards[7][0], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][1], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][2], 7)} #{style_board('|', 7)}#{style_board('|', 8)} #{style_board(@lo_boards[8][0], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][1], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][2], 8)} #{style_board('|', 8)}"
+  puts "#{style_board('|',
+                      6)} #{style_board(@lo_boards[6][0],
+                                        6)} #{style_board('|',
+                                                          6)} #{style_board(@lo_boards[6][1],
+                                                                            6)} #{style_board('|',
+                                                                                              6)} #{style_board(@lo_boards[6][2],
+                                                                                                                6)} #{style_board('|',
+                                                                                                                                  6)}#{style_board('|',
+                                                                                                                                                   7)} #{style_board(@lo_boards[7][0],
+                                                                                                                                                                     7)} #{style_board('|',
+                                                                                                                                                                                       7)} #{style_board(@lo_boards[7][1],
+                                                                                                                                                                                                         7)} #{style_board('|',
+                                                                                                                                                                                                                           7)} #{style_board(@lo_boards[7][2],
+                                                                                                                                                                                                                                             7)} #{style_board('|',
+                                                                                                                                                                                                                                                               7)}#{style_board('|',
+                                                                                                                                                                                                                                                                                8)} #{style_board(@lo_boards[8][0],
+                                                                                                                                                                                                                                                                                                  8)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    8)} #{style_board(@lo_boards[8][1],
+                                                                                                                                                                                                                                                                                                                                      8)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[8][2], 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 6) * 13 + style_board('-', 7) * 13 + style_board('-', 8) * 13
-  puts "#{style_board('|', 6)} #{style_board(@lo_boards[6][3], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][4], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][5], 6)} #{style_board('|', 6)}#{style_board('|', 7)} #{style_board(@lo_boards[7][3], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][4], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][5], 7)} #{style_board('|', 7)}#{style_board('|', 8)} #{style_board(@lo_boards[8][3], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][4], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][5], 8)} #{style_board('|', 8)}"
+  puts "#{style_board('|',
+                      6)} #{style_board(@lo_boards[6][3],
+                                        6)} #{style_board('|',
+                                                          6)} #{style_board(@lo_boards[6][4],
+                                                                            6)} #{style_board('|',
+                                                                                              6)} #{style_board(@lo_boards[6][5],
+                                                                                                                6)} #{style_board('|',
+                                                                                                                                  6)}#{style_board('|',
+                                                                                                                                                   7)} #{style_board(@lo_boards[7][3],
+                                                                                                                                                                     7)} #{style_board('|',
+                                                                                                                                                                                       7)} #{style_board(@lo_boards[7][4],
+                                                                                                                                                                                                         7)} #{style_board('|',
+                                                                                                                                                                                                                           7)} #{style_board(@lo_boards[7][5],
+                                                                                                                                                                                                                                             7)} #{style_board('|',
+                                                                                                                                                                                                                                                               7)}#{style_board('|',
+                                                                                                                                                                                                                                                                                8)} #{style_board(@lo_boards[8][3],
+                                                                                                                                                                                                                                                                                                  8)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    8)} #{style_board(@lo_boards[8][4],
+                                                                                                                                                                                                                                                                                                                                      8)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[8][5], 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 6) * 13 + style_board('-', 7) * 13 + style_board('-', 8) * 13
-  puts "#{style_board('|', 6)} #{style_board(@lo_boards[6][6], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][7], 6)} #{style_board('|', 6)} #{style_board(@lo_boards[6][8], 6)} #{style_board('|', 6)}#{style_board('|', 7)} #{style_board(@lo_boards[7][6], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][7], 7)} #{style_board('|', 7)} #{style_board(@lo_boards[7][8], 7)} #{style_board('|', 7)}#{style_board('|', 8)} #{style_board(@lo_boards[8][6], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][7], 8)} #{style_board('|', 8)} #{style_board(@lo_boards[8][8], 8)} #{style_board('|', 8)}"
+  puts "#{style_board('|',
+                      6)} #{style_board(@lo_boards[6][6],
+                                        6)} #{style_board('|',
+                                                          6)} #{style_board(@lo_boards[6][7],
+                                                                            6)} #{style_board('|',
+                                                                                              6)} #{style_board(@lo_boards[6][8],
+                                                                                                                6)} #{style_board('|',
+                                                                                                                                  6)}#{style_board('|',
+                                                                                                                                                   7)} #{style_board(@lo_boards[7][6],
+                                                                                                                                                                     7)} #{style_board('|',
+                                                                                                                                                                                       7)} #{style_board(@lo_boards[7][7],
+                                                                                                                                                                                                         7)} #{style_board('|',
+                                                                                                                                                                                                                           7)} #{style_board(@lo_boards[7][8],
+                                                                                                                                                                                                                                             7)} #{style_board('|',
+                                                                                                                                                                                                                                                               7)}#{style_board('|',
+                                                                                                                                                                                                                                                                                8)} #{style_board(@lo_boards[8][6],
+                                                                                                                                                                                                                                                                                                  8)} #{style_board('|',
+                                                                                                                                                                                                                                                                                                                    8)} #{style_board(@lo_boards[8][7],
+                                                                                                                                                                                                                                                                                                                                      8)} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        @lo_boards[8][8], 8
+                                                                                                                                                                                                                                                                                                                                      )} #{style_board(
+                                                                                                                                                                                                                                                                                                                                        '|', 8
+                                                                                                                                                                                                                                                                                                                                      )}"
   puts style_board('-', 6) * 13 + style_board('-', 7) * 13 + style_board('-', 8) * 13
 end
 
@@ -269,14 +485,12 @@ def style_board(char, index)
     else
       "\e[91m#{char}\e[0m"
     end
+  elsif @glo_board[index] == @com_player
+    "\e[91m#{char}\e[0m"
+  elsif @glo_board[index] == @hum_player
+    "\e[94m#{char}\e[0m"
   else
-    if @glo_board[index] == @com_player
-      "\e[91m#{char}\e[0m"
-    elsif @glo_board[index] == @hum_player
-      "\e[94m#{char}\e[0m"
-    else
-      "\e[94m#{char}\e[0m"
-    end
+    "\e[94m#{char}\e[0m"
   end
 end
 
@@ -288,7 +502,8 @@ def valid_move
 
     if input.match?(/^\d+\s+\d+$/)
       board, square = input.split.map(&:to_i)
-      if board.between?(0, 8) && @open_boards.include?(board) && square.between?(0, 8) && @lo_boards[board][square] == " "
+      if board.between?(0,
+                        8) && @open_boards.include?(board) && square.between?(0, 8) && @lo_boards[board][square] == ' '
         return [board, square]
       end
     end
